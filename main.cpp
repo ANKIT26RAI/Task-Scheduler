@@ -26,7 +26,6 @@ class  Task
 
     }
 };
-vector<Task> tasks;
 string getCurrentTime()
 {
     time_t now = time(nullptr);
@@ -80,6 +79,57 @@ void listTasks(vector<Task>& tasks, const string& filter)
         cout<<"Tasks not found"<<endl;
     }
 }
+//Find a task by id.
+int findTaskIndex(const vector<Task>& tasks, int id)
+{
+    for (int i=0; i<tasks.size(); i++)
+    {
+        if (tasks[i].id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+//Update Task
+void updateTask(vector<Task>& tasks, int id, const string& newDescription)
+{
+    int index = findTaskIndex(tasks, id);
+    if (index == -1)
+    {
+        cout<<"Error: Task with ID "<<id<<" not found"<<endl;
+        return;
+    }
+    tasks[index].description = newDescription;
+    tasks[index].updatedAt = getCurrentTime();
+    cout<<"Task updated Successfully "<<id<<endl;
+}
+//Delete Task
+void deleteTask(vector<Task>& tasks, int id)
+{
+    int index = findTaskIndex(tasks, id);
+    if (index == -1)
+    {
+        cout<<"Error: Task with ID "<<id<<" not found"<<endl;
+        return;
+    }
+    tasks.erase(tasks.begin()+index);
+    cout<<"Task deleted Successfully"<<endl;
+}
+//Convert text to a number
+bool parseId(const string& text, int& id)
+{
+    try
+    {
+        size_t pos;
+        id = stoi(text, &pos);
+        return pos == text.size();
+
+    }catch (...)
+    {
+        return false;
+    }
+}
 int main(int argc, char* argv[])
 {
     vector<Task> tasks;
@@ -106,6 +156,24 @@ int main(int argc, char* argv[])
             cout<<task.id<<" | "<<task.description<<" | "<<
                 task.status<< " | " <<task.createdAt<<endl;
         }
+    }else if (command == "update")
+    {
+        int id;
+        if (argc!=4||!parseId(argv[2],id))
+        {
+            cout<<"Usage: task-cli update [id]\"new Description\""<<endl;
+            return 1;
+        }
+        updateTask(tasks,id,argv[3]);
+    }else if (command == "delete")
+    {
+     int id;
+        if (argc!=3||!parseId(argv[2],id))
+        {
+            cout<<"Usage: task-cli delete [id]"<<endl;
+            return 1;
+        }
+        deleteTask(tasks,id);
     }else if (command == "list")
     {
         string filter = "all";
