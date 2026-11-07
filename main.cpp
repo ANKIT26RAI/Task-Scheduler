@@ -53,7 +53,7 @@ void addTask(vector<Task>& tasks, const string& description)
     string now = getCurrentTime();
     int id = genNextId(tasks);
     tasks.push_back(Task(id,description,"todo",now,now));
-    cout<< "Task added Successfully(ID: " << id << ")" << endl;
+    cout << "Task added successfully (ID: " << id << ")" << endl;
 }
 //A function to print one task
 void printTask(const Task& task)
@@ -63,7 +63,7 @@ void printTask(const Task& task)
         <<" updated: "<<task.updatedAt<<endl;
 }
 //A function to list tasks.
-void listTasks(vector<Task>& tasks, const string& filter)
+void listTasks(const vector<Task>& tasks, const string& filter)
 {
     bool found = false;
     for (const Task& task : tasks)
@@ -116,6 +116,21 @@ void deleteTask(vector<Task>& tasks, int id)
     tasks.erase(tasks.begin()+index);
     cout<<"Task deleted Successfully"<<endl;
 }
+//mark-in-progress and mark-done
+void markTask(vector<Task>& tasks, int id,const string& newStatus)
+{
+    int index = findTaskIndex(tasks, id);
+    if (index == -1)
+    {
+        cout<<"Error: Task with ID "<<id<<" not found"<<endl;
+        return;
+    }
+    tasks[index].status= newStatus;
+    tasks[index].updatedAt = getCurrentTime();
+    cout << "Task " << id << " marked as " << newStatus << endl;
+
+
+}
 //Convert text to a number
 bool parseId(const string& text, int& id)
 {
@@ -147,7 +162,7 @@ int main(int argc, char* argv[])
     {
         if (argc!=3)
         {
-            cout<<"Usage: task-cli add\"description\""<<endl;
+            cout << "Usage: task-cli add \"description\"" << endl;
             return 1;
         }
         addTask(tasks,argv[2]);
@@ -174,6 +189,15 @@ int main(int argc, char* argv[])
             return 1;
         }
         deleteTask(tasks,id);
+    }else if (command == "mark-in-progress"||command == "mark-done"){
+      int id;
+        if (argc!=3||!parseId(argv[2],id))
+        {
+            cout << "Usage: task-cli " << command << " [id]" << endl;
+            return 1;
+        }
+        string newStatus = (command == "mark-done") ? "done" : "in-progress";
+        markTask(tasks, id, newStatus);
     }else if (command == "list")
     {
         string filter = "all";
